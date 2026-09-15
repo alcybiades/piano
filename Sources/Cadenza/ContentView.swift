@@ -169,7 +169,11 @@ struct ContentView: View {
                     if model.busy { HStack(spacing: 8) { ProgressView().controlSize(.mini); Text(model.status).font(.system(size: 11)).foregroundStyle(Studio.muted) } }
                     Color.clear.frame(height: 1).id("bottom")
                 }.padding(.horizontal, 34).padding(.vertical, 22).frame(maxWidth: 1000, alignment: .leading).frame(maxWidth: .infinity)
-            }.onChange(of: model.conversation.messages.count) { _, _ in withAnimation { reader.scrollTo("bottom", anchor: .bottom) } }
+            }
+            // Preserve the visible bottom edge as the overlay (or streamed text) changes size.
+            // Unlike scrollTo on every drag update, this also respects scrolling into history.
+            .defaultScrollAnchor(.bottom)
+            .onChange(of: model.conversation.messages.count) { _, _ in withAnimation { reader.scrollTo("bottom", anchor: .bottom) } }
         }
     }
     private var welcome: some View {
