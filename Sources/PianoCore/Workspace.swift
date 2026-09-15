@@ -21,6 +21,24 @@ public final class Workspace {
         try MIDI.write(score).write(to: scoresURL.appendingPathComponent(name + ".mid"), options: .atomic)
         try encoder.encode(score).write(to: scoresURL.appendingPathComponent(name + ".json"), options: .atomic)
     }
+    @discardableResult
+    public func importMIDI(_ data: Data, title: String, origin: ResourceOrigin? = nil) throws -> Score {
+        var score = try MIDI.read(data, title: title)
+        score.origin = origin
+        if let origin {
+            score.source = "Downloaded MIDI"
+            score.detail += "\nSource: \(origin.url)\nReference: \(origin.pageURL)\nCredit: \(origin.credit)"
+            _ = try score.validated()
+        }
+        let original = root.appendingPathComponent("Imports/\(score.id).mid")
+        try data.write(to: original, options: .atomic)
+        if let origin {
+            let provenance = "# \(score.title)\n\nMIDI: \(origin.url)\n\nReference page: \(origin.pageURL)\n\nCredit / licensing note: \(origin.credit)\n\nRetrieved: \(ISO8601DateFormatter().string(from: origin.retrieved))\n\nExample ID: \(score.id)\n"
+            try provenance.write(to: original.deletingPathExtension().appendingPathExtension("md"), atomically: true, encoding: .utf8)
+        }
+        try save(score)
+        return score
+    }
     public func scores() throws -> [Score] {
         try FileManager.default.contentsOfDirectory(at: scoresURL, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "json" }

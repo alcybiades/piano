@@ -43,7 +43,7 @@ final class CodexClient: TutorProvider {
         guard FileManager.default.isExecutableFile(atPath: executable) else { throw PianoError("Choose your Codex executable in Settings. Install Codex CLI and run ‘codex login’ first.") }
         let p = Process(), stdin = Pipe(), stdout = Pipe(), stderr = Pipe()
         p.executableURL = URL(fileURLWithPath: executable)
-        p.arguments = ["app-server", "--listen", "stdio://", "-c", "model_provider=\"openai\"", "-c", "features.shell_tool=false", "-c", "features.apps=false", "-c", "features.plugins=false", "-c", "features.multi_agent=false", "-c", "web_search=\"disabled\""]
+        p.arguments = ["app-server", "--listen", "stdio://", "-c", "model_provider=\"openai\"", "-c", "features.shell_tool=false", "-c", "features.apps=false", "-c", "features.plugins=false", "-c", "features.multi_agent=false", "-c", "web_search=\"live\""]
         p.currentDirectoryURL = cwd
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = URL(fileURLWithPath: executable).deletingLastPathComponent().path + ":/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:" + (env["PATH"] ?? "")
@@ -117,6 +117,7 @@ final class CodexClient: TutorProvider {
                     guard token == generation else { return }
                     try send(["id": id, "result": ["success": true, "contentItems": [["type": "inputText", "text": text]]]])
                 } catch {
+                    guard token == generation else { return }
                     try? send(["id": id, "result": ["success": false, "contentItems": [["type": "inputText", "text": error.localizedDescription]]]])
                 }
             } else if method.contains("requestApproval") {

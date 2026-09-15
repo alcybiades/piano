@@ -8,7 +8,7 @@ struct CadenzaApp: App {
     @StateObject private var model: AppModel
     init() {
         do {
-            let testing = CommandLine.arguments.contains("--integration-test") || CommandLine.arguments.contains("--playback-test")
+            let testing = ["--integration-test", "--playback-test", "--research-test"].contains(where: CommandLine.arguments.contains)
             let root = testing ? FileManager.default.temporaryDirectory.appendingPathComponent("CadenzaIntegration-\(UUID())") : nil
             let instance = try AppModel(root: root)
             _model = StateObject(wrappedValue: instance)
@@ -26,6 +26,7 @@ struct CadenzaApp: App {
                     delegate.onQuit = { model.shutdown() }
                     if CommandLine.arguments.contains("--playback-test") { await IntegrationCheck.playback(model); return }
                     if !model.connected { await model.connect() }
+                    if CommandLine.arguments.contains("--research-test") { await IntegrationCheck.research(model); return }
                     if CommandLine.arguments.contains("--integration-test") { await IntegrationCheck.run(model) }
                 }
         }.defaultSize(width: 1340, height: 930).windowStyle(.hiddenTitleBar)

@@ -5,6 +5,41 @@ import PianoCore
 /// Explicit opt-in smoke test. Uses two short real subscription turns in a fresh test workspace.
 @MainActor
 enum IntegrationCheck {
+    static func research(_ model: AppModel) async {
+        let originalAutoplay = model.autoplay
+        var report: [String: Any] = ["workspace": model.workspace.root.path]
+        do {
+            guard model.connected else { throw PianoError(model.error ?? "Connection failed") }
+            model.autoplay = false
+            let legacy = try await model.client.request("thread/start", ["cwd": model.workspace.root.path, "approvalPolicy": "never", "sandbox": "read-only", "dynamicTools": TutorTools.definitions.filter { !["fetch_page", "download_midi", "read_conversation"].contains($0["name"] as? String ?? "") }])
+            guard let oldID = (legacy["thread"] as? [String: Any])?["id"] as? String else { throw PianoError("No legacy thread ID") }
+            model.conversation.threadID = oldID
+            model.conversation.messages = [ChatMessage(role: "user", text: "My practice preference is slow left-hand examples."), ChatMessage(role: "assistant", text: "I will keep that preference in mind.")]
+            model.persist()
+            model.send("Research integration check: use live web search to find the Mutopia resource for Chopin Nocturne Op. 9 No. 2. Use fetch_page on https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1590 to find its actual MIDI link and attribution. Download it with download_midi, inspect its first 8 quarter-note beats, and load that passage with play_saved. Autoplay is off. Briefly report what you inspected, cite the resource using a Markdown link, and recall my earlier practice preference. Do not compose a substitute example.")
+            try await wait(model)
+            guard model.webSearchCount > 0 else { throw PianoError("No live web search observed") }
+            guard model.researchToolCalls.contains("fetch_page"), model.researchToolCalls.contains("download_midi") else { throw PianoError("Research tools were not both used") }
+            guard let downloaded = model.library.first(where: { $0.source == "Downloaded MIDI" }), let origin = downloaded.origin else { throw PianoError("No downloaded MIDI with provenance") }
+            guard downloaded.notes.count > 100, model.conversation.previousThreadIDs?.contains(oldID) == true, model.conversation.threadID != oldID else { throw PianoError("MIDI import or legacy thread upgrade failed") }
+            let upgradedID = model.conversation.threadID
+            await model.connect()
+            model.send("Call read_conversation with offset 0 to verify that earlier history is accessible, and inspect the selected MIDI's first 2 beats using inspect_midi. Then briefly recall my practice preference. No new download or playback needed.")
+            try await wait(model)
+            guard model.conversation.threadID == upgradedID else { throw PianoError("Upgraded thread did not resume") }
+            report["webSearches"] = model.webSearchCount
+            report["researchTools"] = model.researchToolCalls
+            report["importedNotes"] = downloaded.notes.count
+            report["sourceURL"] = origin.url
+            report["credit"] = origin.credit
+            report["migratedAndResumed"] = true
+            report["assistantMessages"] = model.conversation.messages.filter { $0.role == "assistant" }.map(\.text)
+            report["passed"] = true
+        } catch { report["passed"] = false; report["error"] = error.localizedDescription }
+        model.autoplay = originalAutoplay
+        if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: URL(fileURLWithPath: "/tmp/cadenza-research-result.json"), options: .atomic) }
+        model.shutdown(); NSApp.terminate(nil)
+    }
     static func playback(_ model: AppModel) async {
         let player = model.transport
         var report: [String: Any] = [:]

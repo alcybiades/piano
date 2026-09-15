@@ -39,6 +39,16 @@ public struct Tempo: Codable, Equatable, Sendable {
     public init(beat: Double, bpm: Double) { self.beat = beat; self.bpm = bpm }
 }
 
+public struct ResourceOrigin: Codable, Equatable, Sendable {
+    public var url: String
+    public var pageURL: String
+    public var credit: String
+    public var retrieved: Date
+    public init(url: String, pageURL: String, credit: String, retrieved: Date = Date()) {
+        self.url = url; self.pageURL = pageURL; self.credit = credit; self.retrieved = retrieved
+    }
+}
+
 public struct Score: Codable, Identifiable, Equatable, Sendable {
     public var id: UUID = UUID()
     public var title: String
@@ -48,6 +58,7 @@ public struct Score: Codable, Identifiable, Equatable, Sendable {
     public var cues: [Cue]
     public var tempos: [Tempo]
     public var source: String
+    public var origin: ResourceOrigin?
     public var created: Date = Date()
     public init(title: String, detail: String = "", bpm: Double = 80, notes: [Note], cues: [Cue] = [], tempos: [Tempo] = [], source: String = "Tutor example") {
         self.title = title; self.detail = detail; self.bpm = bpm; self.notes = notes
@@ -123,6 +134,8 @@ public struct Conversation: Codable, Identifiable, Sendable {
     public var id: UUID = UUID()
     public var title: String = "New conversation"
     public var threadID: String?
+    public var toolsetVersion: Int?
+    public var previousThreadIDs: [String]?
     public var messages: [ChatMessage] = []
     public var updated: Date = Date()
     public init() {}

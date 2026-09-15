@@ -136,7 +136,7 @@ struct ContentView: View {
                         ForEach(model.library.filter { search.isEmpty || $0.title.localizedCaseInsensitiveContains(search) }) { score in
                             Button { model.select(score) } label: {
                                 HStack(alignment: .top, spacing: 8) {
-                                    Image(systemName: score.source == "Imported MIDI" ? "doc.audio" : "waveform").foregroundStyle(Studio.mint).font(.system(size: 12)).padding(.top, 2)
+                                    Image(systemName: score.source.contains("MIDI") ? "doc.audio" : "waveform").foregroundStyle(Studio.mint).font(.system(size: 12)).padding(.top, 2)
                                     VStack(alignment: .leading, spacing: 5) { Text(score.title).font(.system(size: 11)).lineLimit(2).multilineTextAlignment(.leading); Text("\(score.source) · \(Int(score.duration))s").font(.system(size: 9)).foregroundStyle(Studio.muted) }
                                 }.frame(maxWidth: .infinity, alignment: .leading).padding(10).background(model.transport.score.id == score.id ? Studio.raised : Color.clear, in: RoundedRectangle(cornerRadius: 6))
                             }.buttonStyle(.plain)
@@ -189,6 +189,11 @@ struct ContentView: View {
             } label: {
                 HStack(spacing: 12) { Image(systemName: "play.circle.fill").font(.system(size: 25)).foregroundStyle(Studio.mint); VStack(alignment: .leading, spacing: 4) { Text(message.text).font(.system(size: 12, weight: .medium)); Text("PIANO EXAMPLE · SAVED TO LIBRARY").font(.system(size: 8)).tracking(1.2).foregroundStyle(Studio.muted) }; Spacer(); Image(systemName: "waveform").foregroundStyle(Studio.mint.opacity(0.5)) }.padding(14).background(Studio.mint.opacity(0.055), in: RoundedRectangle(cornerRadius: 8))
             }.buttonStyle(.plain).padding(.leading, 38)
+        } else if message.role == "resource" {
+            HStack(spacing: 7) {
+                Image(systemName: "link").foregroundStyle(Studio.muted)
+                Text(.init(message.text)).tint(Studio.mint)
+            }.font(.system(size: 11)).padding(.leading, 38)
         } else if message.role == "memory" {
             Label(message.text, systemImage: "bookmark").font(.system(size: 10)).foregroundStyle(Studio.muted).padding(.leading, 38)
         } else {
@@ -252,7 +257,7 @@ struct SettingsView: View {
                 Text(model.workspace.root.path).font(.system(size: 10, design: .monospaced)).foregroundStyle(Studio.muted).textSelection(.enabled)
                 Button("Open workspace in Finder") { model.openWorkspace() }
             }
-            Text("MIDI and memory context are sent to Codex when you ask questions. Dictation uses on-device speech recognition when available. Subscription limits apply. Claude and hardware MIDI input are planned for a future version.").font(.system(size: 11)).foregroundStyle(Studio.muted).lineSpacing(4)
+            Text("The tutor can search the web, read public resource pages, and download MIDI into your library. Source links and credits are saved with downloads. MIDI and memory context are sent to Codex when you ask questions. Dictation uses on-device speech recognition when available. Subscription limits apply.").font(.system(size: 11)).foregroundStyle(Studio.muted).lineSpacing(4)
         }.padding(30).frame(width: 570).background(Studio.background).preferredColorScheme(.dark)
     }
 }
