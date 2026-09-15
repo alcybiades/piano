@@ -4,7 +4,19 @@ A native macOS piano tutor. Ask about harmony, hear the agent demonstrate it, an
 
 ![Piano tutor with conversational lessons and a falling-note piano renderer](docs/images/piano-app.jpg)
 
-## Run
+## Setup: ask your Codex agent
+
+**The easiest way to get started is probably to open this repository in your own local Codex agent and ask it to set up the app for your Mac and your Codex login.** This is experimental software, so let the agent check your CLI installation, local configuration, and build tools, then make any machine-specific adjustments needed.
+
+For example, ask:
+
+> Set up this piano app on my Mac using my own Codex CLI and ChatGPT subscription. Check the installed CLI version, executable discovery, login status, and Xcode/Swift setup. Make any necessary local configuration or compatibility changes, build and launch the app, and verify that the tutor connects. Let me complete any login myself. Do not copy credentials into the repository, print tokens, or switch to API-key billing.
+
+The repository is **not configured to use the author's account** and contains no bundled Codex login. The app discovers Codex on the current user's Mac and reuses that user's local authentication. On a typical setup, no source changes are needed: sign in to your own account with `codex login`, then use **Settings → Find Codex** or select your CLI's absolute path if discovery fails. It creates its own tutor conversation; it does not attach to your currently open coding-agent conversation.
+
+Keep credentials local. Never commit or share Codex's `auth.json`, copy another person's login, or put API keys in this repository. See the [official Codex authentication guidance](https://learn.chatgpt.com/docs/auth).
+
+### Manual setup
 
 Requires macOS 14+, Swift 6 (Xcode or Command Line Tools), and a current Codex CLI. Tested against Codex CLI 0.154.0. Dynamic piano tools use the experimental app-server interface, so CLI upgrades may require adapter changes.
 
