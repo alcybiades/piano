@@ -113,7 +113,7 @@ struct ContentView: View {
     }
     private var sidebarView: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack { Spacer(); sidebarToggle }.padding(.top, 18).padding(.bottom, 18)
+            HStack { sidebarToggle; Spacer() }.padding(.top, 10).padding(.bottom, 18)
             Button { model.newConversation() } label: {
                 HStack { Image(systemName: "plus"); Text("New conversation"); Spacer(); Text("⌘N").foregroundStyle(Studio.muted) }.font(.system(size: 11)).padding(12).background(Studio.raised, in: RoundedRectangle(cornerRadius: 7))
             }.buttonStyle(.plain).disabled(model.busy).padding(.bottom, 25)
