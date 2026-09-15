@@ -13,7 +13,7 @@ public final class Workspace {
         }
         let readme = root.appendingPathComponent("README.md")
         if !FileManager.default.fileExists(atPath: readme.path) {
-            try "# Cadenza workspace\n\nYour piano tutor's local memory. Examples are JSON + standard MIDI pairs. Memories are Markdown. Conversations are saved locally as JSON and Markdown. Imported originals live in Imports. You can edit memory Markdown in any editor.\n".write(to: readme, atomically: true, encoding: .utf8)
+            try "# Piano workspace\n\nYour piano tutor's local memory. Examples are JSON + standard MIDI pairs. Memories are Markdown. Conversations are saved locally as JSON and Markdown. Imported originals live in Imports. You can edit memory Markdown in any editor.\n".write(to: readme, atomically: true, encoding: .utf8)
         }
     }
     public func save(_ score: Score) throws {

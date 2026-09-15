@@ -21,10 +21,10 @@ final class SpeechInput: ObservableObject {
         defer { if generation == token { preparing = false } }
         let speech = await withCheckedContinuation { c in SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0) } }
         guard generation == token else { return }
-        guard speech == .authorized else { error = "Enable Speech Recognition for Cadenza in System Settings → Privacy & Security."; return }
+        guard speech == .authorized else { error = "Enable Speech Recognition for Piano in System Settings → Privacy & Security."; return }
         let mic = await AVCaptureDevice.requestAccess(for: .audio)
         guard generation == token else { return }
-        guard mic else { error = "Enable Microphone access for Cadenza in System Settings → Privacy & Security."; return }
+        guard mic else { error = "Enable Microphone access for Piano in System Settings → Privacy & Security."; return }
         guard let recognizer = SFSpeechRecognizer(locale: Locale.current), recognizer.isAvailable, recognizer.supportsOnDeviceRecognition else {
             error = "On-device dictation is unavailable for this language. Enable macOS Dictation or type your question."; return
         }

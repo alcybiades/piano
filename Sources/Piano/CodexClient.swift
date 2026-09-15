@@ -66,7 +66,7 @@ final class CodexClient: TutorProvider {
             }
         }
         do { try p.run() } catch { disconnect(); throw error }
-        _ = try await request("initialize", ["clientInfo": ["name": "cadenza_piano", "title": "Cadenza", "version": "0.1.0"], "capabilities": ["experimentalApi": true]])
+        _ = try await request("initialize", ["clientInfo": ["name": "piano_tutor", "title": "Piano tutor", "version": "0.1.0"], "capabilities": ["experimentalApi": true]])
         try send(["method": "initialized", "params": [:]])
     }
     func request(_ method: String, _ params: [String: Any] = [:]) async throws -> [String: Any] {
@@ -123,7 +123,7 @@ final class CodexClient: TutorProvider {
             } else if method.contains("requestApproval") {
                 try? send(["id": id, "result": ["decision": "decline"]])
             } else {
-                try? send(["id": id, "error": ["code": -32601, "message": "Cadenza supports piano tools only; ask the user in conversation instead."]])
+                try? send(["id": id, "error": ["code": -32601, "message": "Piano supports piano tools only; ask the user in conversation instead."]])
             }
         }
     }

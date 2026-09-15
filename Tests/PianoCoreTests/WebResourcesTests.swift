@@ -36,7 +36,7 @@ final class WebResourcesTests: XCTestCase {
     }
 
     func testDownloadedMIDIPreservesProvenanceAndOriginal() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("CadenzaWebTest-\(UUID())")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("PianoWebTest-\(UUID())")
         defer { try? FileManager.default.removeItem(at: root) }
         let workspace = try Workspace(root: root), data = try MIDI.write(.welcome)
         let origin = ResourceOrigin(url: "https://example.org/cadence.mid", pageURL: "https://example.org/cadence", credit: "Original test fixture")

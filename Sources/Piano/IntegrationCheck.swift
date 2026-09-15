@@ -37,7 +37,7 @@ enum IntegrationCheck {
             report["passed"] = true
         } catch { report["passed"] = false; report["error"] = error.localizedDescription }
         model.autoplay = originalAutoplay
-        if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: URL(fileURLWithPath: "/tmp/cadenza-research-result.json"), options: .atomic) }
+        if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: URL(fileURLWithPath: "/tmp/piano-research-result.json"), options: .atomic) }
         model.shutdown(); NSApp.terminate(nil)
     }
     static func playback(_ model: AppModel) async {
@@ -66,7 +66,7 @@ enum IntegrationCheck {
             report["importedNotes"] = model.transport.score.notes.count
             report["passed"] = true
         } catch { report["passed"] = false; report["error"] = error.localizedDescription }
-        if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: URL(fileURLWithPath: "/tmp/cadenza-playback-result.json"), options: .atomic) }
+        if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: URL(fileURLWithPath: "/tmp/piano-playback-result.json"), options: .atomic) }
         model.shutdown(); NSApp.terminate(nil)
     }
     static func run(_ model: AppModel) async {
@@ -95,7 +95,7 @@ enum IntegrationCheck {
             report["assistantMessages"] = model.conversation.messages.filter { $0.role == "assistant" }.count
             report["passed"] = true
         } catch { report["passed"] = false; report["error"] = error.localizedDescription }
-        let url = URL(fileURLWithPath: "/tmp/cadenza-integration-result.json")
+        let url = URL(fileURLWithPath: "/tmp/piano-integration-result.json")
         if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: url, options: .atomic) }
         model.shutdown(); NSApp.terminate(nil)
     }

@@ -1,8 +1,8 @@
-# Cadenza
+# Piano
 
 A native macOS piano tutor. Ask about harmony, hear the agent demonstrate it, and keep exploring. SwiftUI, AVAudioEngine, standard MIDI files, and a persistent local Codex app-server conversation. No third-party packages or API key required.
 
-![Cadenza piano tutor with conversational lessons and a falling-note piano renderer](docs/images/piano-app.png)
+![Piano tutor with conversational lessons and a falling-note piano renderer](docs/images/piano-app.jpg)
 
 ## Run
 
@@ -10,11 +10,11 @@ Requires macOS 14+, Swift 6 (Xcode or Command Line Tools), and a current Codex C
 
 ```sh
 codex login                    # Sign in with ChatGPT
-bash scripts/build-app.sh      # Builds dist/Cadenza.app
-open dist/Cadenza.app
+bash scripts/build-app.sh      # Builds dist/Piano.app
+open dist/Piano.app
 ```
 
-Use the `.app` bundle for microphone permissions. `swift run Cadenza` also works for typed questions and playback. Open `Package.swift` in Xcode for development. The app discovers common CLI installations (including nvm); set an absolute path in Settings if discovery fails.
+Use the `.app` bundle for microphone permissions. `swift run Piano` also works for typed questions and playback. Open `Package.swift` in Xcode for development. The app discovers common CLI installations (including nvm); set an absolute path in Settings if discovery fails.
 
 ```sh
 bash scripts/test.sh           # Selects Xcode for XCTest if needed
@@ -46,7 +46,7 @@ You can also ask the tutor to research a piece and find a MIDI. It can search th
 
 ## Subscription integration
 
-Cadenza launches its own `codex app-server --listen stdio://` process and reuses Codex-managed login credentials. It checks `account/read` and only enables the tutor for `type: chatgpt`. It does not read/copy tokens, ask for API keys, or silently fall back to API billing. Subscription limits and account policies still apply. The model runs in the cloud; only the app, audio rendering, MIDI, and workspace are local.
+The app launches its own `codex app-server --listen stdio://` process and reuses Codex-managed login credentials. It checks `account/read` and only enables the tutor for `type: chatgpt`. It does not read/copy tokens, ask for API keys, or silently fall back to API billing. Subscription limits and account policies still apply. The model runs in the cloud; only the app, audio rendering, MIDI, and workspace are local.
 
 This is a dedicated tutor thread, **not** an attachment to whichever CLI or desktop conversation happens to be open. Threads resume through app-server IDs. The provider protocol and piano tool contract are separated from transport so a Claude adapter can be added later; Claude is not implemented in v1.
 
@@ -59,7 +59,7 @@ Official references: [App server](https://learn.chatgpt.com/docs/app-server), [A
 Default location:
 
 ```text
-~/Library/Application Support/Cadenza/Workspace/
+~/Library/Application Support/Piano/Workspace/
   Examples/          <uuid>.json + <uuid>.mid
   Memories/          <uuid>.md
   Conversations/     <uuid>.json + <uuid>.md
@@ -67,13 +67,13 @@ Default location:
   README.md
 ```
 
-Open the workspace from the sidebar or Settings. Memories can be edited with any text editor and are read again on the next question. The agent chooses which useful observations to remember. Examples are always saved; memory Markdown can reference their stable IDs. Conversations also persist in Codex's own session store.
+Open the workspace from the sidebar or Settings. Existing installations keep their previous workspace location and import app preferences on first launch; saved conversations, memories, and MIDI are not moved or rewritten. The renamed app has a new bundle identifier, so macOS may request microphone/speech permission again when you use dictation. Memories can be edited with any text editor and are read again on the next question. The agent chooses which useful observations to remember. Examples are always saved; memory Markdown can reference their stable IDs. Conversations also persist in Codex's own session store.
 
 Selected-piece metadata, library metadata, memory excerpts, and inspected note events are sent to Codex as conversation context. Importing by itself does not start a model turn. On-device speech recognition is required; if the language/device does not support it, use typed input or macOS Dictation.
 
 Web search runs through Codex with `web_search="live"`. Search queries go to the search service; resource URLs are fetched directly by the Mac using public HTTP(S) GET requests without stored cookies or credentials. Downloads have size/time/redirect limits and reject local/private network destinations. Page content is treated as untrusted data, not tool instructions. The tutor is instructed not to disclose private conversation or memory contents to resource sites.
 
-The Codex subprocess has shell/app/plugin/multi-agent features disabled, inherited MCP servers disabled for its tutor threads, read-only sandboxing, and no approval escalation. Music and memory writes happen through validated app tools. The legacy read-only sandbox is not a restriction on all filesystem reads; the tutor's narrow tool set is the primary access boundary. Cadenza itself is a locally signed, unsandboxed Mac app because it launches a CLI; it is not a Mac App Store sandbox distribution.
+The Codex subprocess has shell/app/plugin/multi-agent features disabled, inherited MCP servers disabled for its tutor threads, read-only sandboxing, and no approval escalation. Music and memory writes happen through validated app tools. The legacy read-only sandbox is not a restriction on all filesystem reads; the tutor's narrow tool set is the primary access boundary. The app itself is a locally signed, unsandboxed Mac app because it launches a CLI; it is not a Mac App Store sandbox distribution.
 
 ## Scope and known limitations
 
@@ -88,19 +88,19 @@ The Codex subprocess has shell/app/plugin/multi-agent features disabled, inherit
 
 ## Structure
 
-`PianoCore` contains validated score models, MIDI parsing/writing, and persistence. `Cadenza` contains the SwiftUI studio, AVAudioEngine player, speech input, app model, tool dispatch, and JSON-RPC Codex adapter. No web view or web service is involved in the UI.
+`PianoCore` contains validated score models, MIDI parsing/writing, and persistence. `Piano` contains the SwiftUI studio, AVAudioEngine player, speech input, app model, tool dispatch, and JSON-RPC Codex adapter. No web view or web service is involved in the UI.
 
 ## Integration checks
 
 The following opt-in checks use temporary workspaces, then quit. Close the ordinary app first. Playback tests do not contact Codex; the tutor and research checks each use two real subscription turns. Research also fetches a public Mutopia page and MIDI.
 
 ```sh
-open -n dist/Cadenza.app --args --playback-test
-# Report: /tmp/cadenza-playback-result.json
-open -n dist/Cadenza.app --args --integration-test
-# Report: /tmp/cadenza-integration-result.json
-open -n dist/Cadenza.app --args --research-test
-# Report: /tmp/cadenza-research-result.json
+open -n dist/Piano.app --args --playback-test
+# Report: /tmp/piano-playback-result.json
+open -n dist/Piano.app --args --integration-test
+# Report: /tmp/piano-integration-result.json
+open -n dist/Piano.app --args --research-test
+# Report: /tmp/piano-research-result.json
 ```
 
 The playback check measures nonzero PCM audio from the mixer, verifies advancing playback, highlighted notes, pause/stop, seek, transposition, hand isolation, looping, and app-level MIDI import. The tutor check verifies tool-generated MIDI, Markdown memory, reconnect, and resuming the same conversation. The research check verifies live web search, page extraction, MIDI import with provenance, legacy-thread upgrade, and subsequent resume. These checks do not exercise microphone transcription; test that interactively on the target Mac and language.

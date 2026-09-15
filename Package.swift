@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "Cadenza",
+    name: "Piano",
     platforms: [.macOS(.v14)],
-    products: [.executable(name: "Cadenza", targets: ["Cadenza"])],
+    products: [.executable(name: "Piano", targets: ["Piano"])],
     targets: [
         .target(name: "PianoCore"),
-        .executableTarget(name: "Cadenza", dependencies: ["PianoCore"]),
+        .executableTarget(name: "Piano", dependencies: ["PianoCore"]),
         .testTarget(name: "PianoCoreTests", dependencies: ["PianoCore"])
     ],
     swiftLanguageModes: [.v5]

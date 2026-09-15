@@ -37,7 +37,7 @@ final class AppModel: ObservableObject {
     private(set) var researchToolCalls: [String] = []
 
     init(root: URL? = nil) throws {
-        let base = root ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Cadenza/Workspace", isDirectory: true)
+        let base = root ?? InstallationCompatibility.workspaceRoot(in: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0])
         workspace = try Workspace(root: base)
         executable = UserDefaults.standard.string(forKey: "codexPath") ?? CodexClient.discover()
         selectedModel = UserDefaults.standard.string(forKey: "model") ?? ""
@@ -65,7 +65,7 @@ final class AppModel: ObservableObject {
             try await client.connect(executable: executable, cwd: workspace.root)
             let response = try await client.request("account/read", ["refreshToken": false])
             guard let account = response["account"] as? [String: Any], account["type"] as? String == "chatgpt" else {
-                throw PianoError("Cadenza needs a ChatGPT subscription login. Run ‘codex login’ in Terminal, then reconnect. API-key accounts are intentionally not used.")
+                throw PianoError("Piano needs a ChatGPT subscription login. Run ‘codex login’ in Terminal, then reconnect. API-key accounts are intentionally not used.")
             }
             accountLabel = "ChatGPT · \((account["planType"] as? String ?? "subscription").capitalized)"
             let catalog = try await client.request("model/list", ["limit": 100])

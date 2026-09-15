@@ -3,24 +3,25 @@ import AppKit
 import PianoCore
 
 @main
-struct CadenzaApp: App {
+struct PianoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var model: AppModel
     init() {
+        InstallationCompatibility.importPreferences(into: .standard)
         do {
             let testing = ["--integration-test", "--playback-test", "--research-test"].contains(where: CommandLine.arguments.contains)
-            let root = testing ? FileManager.default.temporaryDirectory.appendingPathComponent("CadenzaIntegration-\(UUID())") : nil
+            let root = testing ? FileManager.default.temporaryDirectory.appendingPathComponent("PianoIntegration-\(UUID())") : nil
             let instance = try AppModel(root: root)
             _model = StateObject(wrappedValue: instance)
         }
         catch {
             // A failed workspace must be visible, never silently replaced with an ephemeral one.
-            let alert = NSAlert(); alert.messageText = "Cadenza could not open its workspace"; alert.informativeText = error.localizedDescription; alert.runModal()
+            let alert = NSAlert(); alert.messageText = "Piano could not open its workspace"; alert.informativeText = error.localizedDescription; alert.runModal()
             exit(1)
         }
     }
     var body: some Scene {
-        Window("Cadenza", id: "studio") {
+        Window("Piano", id: "studio") {
             ContentView(model: model)
                 .task {
                     delegate.onQuit = { model.shutdown() }

@@ -81,7 +81,7 @@ public final class ResourceDownload: NSObject, URLSessionDataDelegate, @unchecke
                 let queue = OperationQueue(); queue.maxConcurrentOperationCount = 1
                 let session = URLSession(configuration: configuration, delegate: self, delegateQueue: queue)
                 var request = URLRequest(url: url)
-                request.setValue("Cadenza/0.2 (piano learning; resource reader)", forHTTPHeaderField: "User-Agent")
+                request.setValue("Piano/0.2 (piano learning; resource reader)", forHTTPHeaderField: "User-Agent")
                 request.setValue("text/html,text/plain,audio/midi,application/octet-stream;q=0.8,*/*;q=0.5", forHTTPHeaderField: "Accept")
                 let task = session.dataTask(with: request)
                 lock.lock()

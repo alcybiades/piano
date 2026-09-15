@@ -47,7 +47,7 @@ final class PianoCoreTests: XCTestCase {
         XCTAssertEqual(Score.welcome.transposed(12).notes.first!.pitch, Score.welcome.notes.first!.pitch + 12)
     }
     func testWorkspacePersistenceAndTraversal() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("CadenzaTest-\(UUID())")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("PianoTest-\(UUID())")
         let store = try Workspace(root: root)
         defer { try? FileManager.default.removeItem(at: root) }
         let score = Score.welcome; try store.save(score)

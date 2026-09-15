@@ -52,7 +52,7 @@ struct ContentView: View {
             .background(Studio.background).preferredColorScheme(.dark)
             .frame(minWidth: 1050, minHeight: 760)
             .sheet(isPresented: $model.settingsShown) { SettingsView(model: model) }
-            .alert("Cadenza", isPresented: Binding(get: { model.error != nil || speech.error != nil }, set: { if !$0 { model.error = nil; speech.error = nil } })) {
+            .alert("Piano", isPresented: Binding(get: { model.error != nil || speech.error != nil }, set: { if !$0 { model.error = nil; speech.error = nil } })) {
                 Button("OK") { model.error = nil; speech.error = nil }
             } message: { Text(model.error ?? speech.error ?? "") }
             .onReceive(model.transport.$audioError) { if let error = $0 { model.error = error } }
@@ -204,7 +204,7 @@ struct ContentView: View {
             HStack(alignment: .top, spacing: 14) {
                 Image(systemName: message.role == "user" ? "person.crop.circle" : "sparkle").font(.system(size: 16)).foregroundStyle(message.role == "user" ? Studio.muted : Studio.mint).frame(width: 24).padding(.top, 2)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(message.role == "user" ? "YOU" : "CADENZA").font(.system(size: 8, weight: .semibold)).tracking(1.6).foregroundStyle(Studio.muted)
+                    Text(message.role == "user" ? "YOU" : "TUTOR").font(.system(size: 8, weight: .semibold)).tracking(1.6).foregroundStyle(Studio.muted)
                     MessageText(text: message.text)
                 }
             }
@@ -241,7 +241,7 @@ struct SettingsView: View {
             HStack { Text("Settings").font(.system(size: 20, weight: .medium)); Spacer(); Button("Done") { dismiss() }.keyboardShortcut(.defaultAction) }
             VStack(alignment: .leading, spacing: 10) {
                 Text("CODEX CONNECTION").font(.system(size: 10, weight: .semibold)).tracking(1.5).foregroundStyle(Studio.muted)
-                Text("Uses the Codex CLI on your Mac and your ChatGPT subscription. Cadenza owns a persistent tutor conversation; your model still runs in the cloud.").font(.system(size: 12)).foregroundStyle(Studio.muted).lineSpacing(4)
+                Text("Uses the Codex CLI on your Mac and your ChatGPT subscription. The app maintains a persistent tutor conversation; your model still runs in the cloud.").font(.system(size: 12)).foregroundStyle(Studio.muted).lineSpacing(4)
                 TextField("Absolute path to codex", text: $model.executable).textFieldStyle(.roundedBorder).disabled(model.busy || model.connecting)
                 HStack {
                     Button("Find Codex") { model.executable = CodexClient.discover() }.disabled(model.busy || model.connecting)
