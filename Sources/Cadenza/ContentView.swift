@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import PianoCore
 
 struct ContentView: View {
@@ -7,26 +8,48 @@ struct ContentView: View {
     @State private var sidebar = true
     @State private var tab = "Conversations"
     @State private var search = ""
+    @AppStorage("chatOverlayFraction") private var chatFraction = 0.46
+    @State private var resizeStartHeight: CGFloat?
+    @State private var hoveringDivider = false
     var body: some View {
         HStack(spacing: 0) {
-            if sidebar { sidebarView.frame(width: 224); Rectangle().fill(Studio.line).frame(width: 1) }
-            VStack(spacing: 0) {
-                GeometryReader { geometry in
+            if sidebar { sidebarView.padding(.top, 28).frame(width: 224); Rectangle().fill(Studio.line).frame(width: 1) }
+            GeometryReader { geometry in
+                let topInset = max(28, geometry.safeAreaInsets.top)
+                let chatHeight = boundedChatHeight(geometry.size.height * chatFraction, available: geometry.size.height)
+                ZStack(alignment: .top) {
+                    // The piano's geometry never changes when the chat overlay is resized.
                     VStack(spacing: 0) {
                         PianoView(transport: model.transport)
-                            .frame(height: max(260, min(420, geometry.size.height * 0.51)))
-                            .overlay(alignment: .topTrailing) { pianoControls.padding(18) }
-                            .overlay(alignment: .topLeading) {
-                                if !sidebar { sidebarToggle.padding(18) }
-                            }
+                            .frame(maxHeight: .infinity)
                         TransportView(transport: model.transport)
-                        Rectangle().fill(Studio.line).frame(height: 1)
+                    }
+
+                    VStack(spacing: 0) {
                         conversationView.frame(maxHeight: .infinity)
                         composer
+                        chatDivider(height: chatHeight, available: geometry.size.height)
                     }
+                    .padding(.top, topInset + 48)
+                    .frame(height: chatHeight)
+                    .background {
+                        ChatBackdrop()
+                            .overlay(Studio.background.opacity(0.12))
+                            .allowsHitTesting(false)
+                    }
+                    .clipped()
+                    .shadow(color: .black.opacity(0.15), radius: 16, y: 8)
+
+                    HStack(alignment: .top) {
+                        if !sidebar { sidebarToggle }
+                        Spacer()
+                        pianoControls
+                    }.padding(.horizontal, 18).padding(.top, topInset + 10)
                 }
             }
-        }.background(Studio.background).preferredColorScheme(.dark)
+        }.ignoresSafeArea(.container, edges: .top)
+            .coordinateSpace(name: "studioWindow")
+            .background(Studio.background).preferredColorScheme(.dark)
             .frame(minWidth: 1050, minHeight: 760)
             .sheet(isPresented: $model.settingsShown) { SettingsView(model: model) }
             .alert("Cadenza", isPresented: Binding(get: { model.error != nil || speech.error != nil }, set: { if !$0 { model.error = nil; speech.error = nil } })) {
@@ -34,6 +57,36 @@ struct ContentView: View {
             } message: { Text(model.error ?? speech.error ?? "") }
             .onReceive(model.transport.$audioError) { if let error = $0 { model.error = error } }
             .onDisappear { speech.stop() }
+    }
+    private func boundedChatHeight(_ height: CGFloat, available: CGFloat) -> CGFloat {
+        min(max(240, height), max(240, available - 220))
+    }
+    private func chatDivider(height: CGFloat, available: CGFloat) -> some View {
+        ZStack {
+            Rectangle().fill(Color.white.opacity(hoveringDivider || resizeStartHeight != nil ? 0.22 : 0.09)).frame(height: 1)
+            Capsule().fill(Color.white.opacity(hoveringDivider || resizeStartHeight != nil ? 0.65 : 0.28)).frame(width: 38, height: 3)
+        }
+        .frame(maxWidth: .infinity).frame(height: 14)
+        .contentShape(Rectangle())
+        .onHover { inside in
+            hoveringDivider = inside
+            if inside { NSCursor.resizeUpDown.push() } else { NSCursor.pop() }
+        }
+        .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("studioWindow"))
+            .onChanged { value in
+                if resizeStartHeight == nil { resizeStartHeight = height }
+                chatFraction = boundedChatHeight((resizeStartHeight ?? height) + value.translation.height, available: available) / max(1, available)
+            }
+            .onEnded { _ in resizeStartHeight = nil })
+        .accessibilityElement()
+        .accessibilityLabel("Chat height")
+        .accessibilityValue("\(Int(chatFraction * 100)) percent")
+        .accessibilityHint("Drag up or down to resize the chat overlay")
+        .accessibilityAdjustableAction { direction in
+            let delta: CGFloat = direction == .increment ? 40 : -40
+            chatFraction = boundedChatHeight(height + delta, available: available) / max(1, available)
+        }
+        .help("Drag to resize chat")
     }
     private var sidebarToggle: some View {
         Button { withAnimation(.easeInOut(duration: 0.18)) { sidebar.toggle() } } label: {

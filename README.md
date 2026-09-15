@@ -21,6 +21,7 @@ bash scripts/test.sh           # Selects Xcode for XCTest if needed
 ## What works
 
 - Falling notes aligned with an interactive piano keyboard; fit-to-notes or full 88-key range.
+- Full-height piano behind a top chat overlay with live backdrop blur. Drag the overlay's lower boundary to resize it; the height is remembered and the keyboard stays fixed.
 - Piano sound from the built-in macOS General MIDI sound bank.
 - Play, pause, seek, loop, speed adjustment, transpose, hand isolation, volume, MIDI export.
 - Real streamed Codex conversations with persistent thread resume and model discovery.

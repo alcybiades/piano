@@ -74,10 +74,10 @@ struct PianoView: View {
                         }
                     }
                     .frame(height: rollHeight).clipped()
-                    .overlay(alignment: .topLeading) {
+                    .overlay(alignment: .bottomLeading) {
                         if !transport.score.cues.isEmpty {
                             Text(transport.currentCue).font(.system(size: 19, weight: .light)).foregroundStyle(.white.opacity(0.75))
-                                .padding(.horizontal, 22).padding(.top, 66).allowsHitTesting(false)
+                                .padding(.horizontal, 22).padding(.bottom, 18).allowsHitTesting(false)
                         }
                     }
                     .overlay(alignment: .bottom) { Rectangle().fill(Studio.mint.opacity(0.7)).frame(height: 2).shadow(color: Studio.mint.opacity(0.3), radius: 8) }
