@@ -2,6 +2,8 @@
 
 A native macOS piano tutor. Ask about harmony, hear the agent demonstrate it, and keep exploring. SwiftUI, AVAudioEngine, standard MIDI files, and a persistent local Codex app-server conversation. No third-party packages or API key required.
 
+![Cadenza piano tutor with conversational lessons and a falling-note piano renderer](docs/images/piano-app.png)
+
 ## Run
 
 Requires macOS 14+, Swift 6 (Xcode or Command Line Tools), and a current Codex CLI. Tested against Codex CLI 0.154.0. Dynamic piano tools use the experimental app-server interface, so CLI upgrades may require adapter changes.
